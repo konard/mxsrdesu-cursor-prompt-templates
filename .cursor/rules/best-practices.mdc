@@ -1,0 +1,124 @@
+---
+alwaysApply: true
+---
+# Best Practices
+
+## Mapping Variants to Values
+- **ALWAYS** prefer using object maps (Record/objects with keys) for mapping variants to values (e.g., mapping a variant to a tag/component/class) instead of switch/case statements.
+- This makes the code more concise, readable, and easier to extend.
+- **DO NOT** use switch/case for this pattern unless specifically asked or there is complex logic per case.
+
+### ✅ Correct - Object Map Pattern:
+```ts
+const tagMap = {
+  h1: 'h1',
+  h2: 'h2',
+  p1: 'p',
+  span: 'span',
+  // ...
+};
+const Tag = tagMap[variant] || 'p';
+
+// For component mapping
+const buttonVariants = {
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  danger: 'btn-danger'
+};
+const className = buttonVariants[variant] || 'btn-default';
+```
+
+### ❌ Incorrect - Switch/Case for Simple Mapping:
+```ts
+// DON'T do this for simple value mapping
+let Tag;
+switch (variant) {
+  case 'h1':
+    Tag = 'h1';
+    break;
+  case 'h2':
+    Tag = 'h2';
+    break;
+  case 'p1':
+    Tag = 'p';
+    break;
+  default:
+    Tag = 'p';
+}
+
+// DON'T do this for simple class mapping
+let className;
+switch (variant) {
+  case 'primary':
+    className = 'btn-primary';
+    break;
+  case 'secondary':
+    className = 'btn-secondary';
+    break;
+  case 'danger':
+    className = 'btn-danger';
+    break;
+  default:
+    className = 'btn-default';
+}
+```
+
+### ✅ Acceptable - Switch/Case with Complex Logic:
+```ts
+// OK when there's complex logic per case
+const getButtonProps = (variant: string) => {
+  switch (variant) {
+    case 'primary':
+      trackEvent('primary_button_rendered');
+      return { className: 'btn-primary', 'aria-label': 'Primary action' };
+    case 'danger':
+      if (needsConfirmation) {
+        return { className: 'btn-danger', onClick: handleDangerousAction };
+      }
+      return { className: 'btn-danger' };
+    default:
+      return { className: 'btn-default' };
+  }
+};
+```
+
+## React Hooks Import Pattern
+- **ALWAYS** import React hooks directly from 'react' using destructuring.
+- **NEVER** import React as a namespace and use React.hookName pattern.
+- This makes imports cleaner and follows modern React patterns.
+
+### ✅ Correct Examples:
+```ts
+import { useState, useEffect, useCallback, useRef } from 'react';
+
+const MyComponent = () => {
+  const [state, setState] = useState(initialValue);
+  const ref = useRef(null);
+  
+  useEffect(() => {
+    // effect logic
+  }, []);
+  
+  const memoizedCallback = useCallback(() => {
+    // callback logic
+  }, []);
+};
+```
+
+### ❌ Incorrect Examples:
+```ts
+import React from 'react';
+
+const MyComponent = () => {
+  const [state, setState] = React.useState(initialValue);
+  const ref = React.useRef(null);
+  
+  React.useEffect(() => {
+    // effect logic
+  }, []);
+  
+  const memoizedCallback = React.useCallback(() => {
+    // callback logic
+  }, []);
+};
+```
